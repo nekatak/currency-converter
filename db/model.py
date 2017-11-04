@@ -17,13 +17,22 @@ class Rate(object):
         return "%s exchange rate %s for %s" % (self.symbol, self.exchange_rate,
                                                self.date)
 
-    def save_to_db(self):
+    def save_to_db_or_update(self):
         c = conn.cursor()
-        insstr = "INSERT INTO currencies VALUES (%s, %s, %s)" % (
-            self.exchange_rate, self.symbol, self.date
-        )
+        selstr = "SELECT * FROM currencies where symbol = '%s' "\
+            "and date = '%s'" % (self.symbol, self.date)
+        find_todays_curr = c.execute(selstr).fetchone()
+
+        if find_todays_curr is None:
+            insstr = "INSERT INTO currencies VALUES ('%s', '%s', '%s')" % (
+                self.exchange_rate, self.symbol, self.date)
+        else:
+            insstr = "UPDATE currencies SET exchange_rate=%s " \
+                "WHERE symbol = '%s' and date = '%s'" % (
+                self.exchange_rate, self.symbol, self.date,)
+
         c.execute(insstr)
-        c.commit()
+        conn.commit()
 
     @classmethod
     def convert_from_currency_to_currency(cls, from_currency,
