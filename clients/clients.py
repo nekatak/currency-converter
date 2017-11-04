@@ -8,12 +8,14 @@ class BaseClient(object):
     def __init__(self, url):
         self.url = url
 
-    def get(self):
+    def get_xml(self):
         try:
             resp = requests.get(self.url)
             resp.raise_for_status()
         except (requests.HTTPError, requests.ConnectionError) as e:
             raise BaseClient.ClientException(str(e))
+
+        return resp.text
 
 
 class YahooClient(BaseClient):

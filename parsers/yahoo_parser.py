@@ -34,4 +34,8 @@ class YahooParser(BaseParser):
 
     def get_rates_for_all_available_currencies(self):
         for resource in self.parser_root.findall("resource"):
-            yield self._get_one_currency_rate_obj(resource)
+            single_rate = self._get_one_currency_rate_obj(resource)
+            if single_rate:
+                yield single_rate
+            else:
+                continue
