@@ -28,7 +28,7 @@ def test_parser(yahoo_xml_report):
     rates = list(gen)
     assert rates[0].symbol == "KRW"
     assert rates[0].exchange_rate == 1114.790039
-    assert rates[0].datetime == "2017-11-03T21:21:55+0000"
+    assert rates[0].date == "2017-11-03"
 
 
 def test_ecb_parser(ecb_xml_report):
@@ -39,7 +39,7 @@ def test_ecb_parser(ecb_xml_report):
     assert isinstance(gen, types.GeneratorType)
 
     rates = list(gen)
-    assert rates[0].datetime == "2017-11-03T16:00:00+0000"
+    assert rates[0].date == "2017-11-03"
     assert rates[0].exchange_rate == 1.00
     assert rates[0].symbol == 'USD'
 

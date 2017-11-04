@@ -1,7 +1,7 @@
-from parsers import BaseParser
-from rates.model import Rate
-
 import xml.etree.ElementTree as ET
+
+from db.model import Rate
+from parsers import BaseParser
 
 
 class YahooParser(BaseParser):
@@ -23,12 +23,12 @@ class YahooParser(BaseParser):
             if element_name == "price":
                 exchange_rate = float(node.text)
             if element_name == "utctime":
-                datetime = node.text
+                date = node.text.split("T")[0]
 
         return Rate(**{
             "symbol": symbol,
             "exchange_rate": exchange_rate,
-            "datetime": datetime,
+            "date": date,
         })
 
 

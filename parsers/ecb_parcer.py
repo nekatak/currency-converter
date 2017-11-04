@@ -1,7 +1,7 @@
-from parsers import BaseParser
-from rates.model import Rate
-
 import xml.etree.ElementTree as ET
+
+from db.model import Rate
+from parsers import BaseParser
 
 
 class ECBParser(BaseParser):
@@ -22,12 +22,12 @@ class ECBParser(BaseParser):
 
         return Rate(**{
             "symbol": child.attrib['currency'],
-            "datetime": date,
+            "date": date,
             "exchange_rate": float(child.attrib['rate'])/self.usd_exchange_rate
         })
 
     def get_rates_for_all_available_currencies(self):
-        date = self.parser_root[0].get("time") + "T16:00:00+0000"
+        date = self.parser_root[0].get("time")
 
         for child in self.parser_root[0]:
             yield self._get_one_currency_rate_obj(child, date)
