@@ -1,7 +1,8 @@
 from parsers import BaseParser
-from rates.rate_model import Rate
+from rates.model import Rate
 
 import xml.etree.ElementTree as ET
+
 
 class YahooParser(BaseParser):
     def __init__(self, xmldoc):
@@ -33,5 +34,4 @@ class YahooParser(BaseParser):
 
     def get_rates_for_all_available_currencies(self):
         for resource in self.parser_root.findall("resource"):
-            for node in resource.findall("field"):
-                yield self._get_currency_rate_obj(node)
+            yield self._get_one_currency_rate_obj(resource)
