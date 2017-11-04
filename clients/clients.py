@@ -26,6 +26,7 @@ class YahooClient(BaseClient):
 
 
 class ECBClient(BaseClient):
+
     ECB_EXCHANGE_RATES_URL = \
         "http://www.ecb.europa.eu/" \
         "stats/eurofxref/eurofxref-daily.xml?a1bf7a84cadc32c1dd25dbbb625566de"
