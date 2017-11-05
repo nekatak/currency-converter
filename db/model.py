@@ -28,7 +28,7 @@ class Rate(object):
         else:
             insstr = "UPDATE currencies SET exchange_rate=%s " \
                 "WHERE symbol = '%s' and date = '%s'" % (
-                self.exchange_rate, self.symbol, self.date,)
+                    self.exchange_rate, self.symbol, self.date)
 
         c.execute(insstr)
         conn.commit()
@@ -37,22 +37,24 @@ class Rate(object):
     def convert_from_currency_to_currency(cls, from_currency,
                                           to_currenvcy, amount=1, date=None):
         if date:
-            selstr = "select exchange_rate from currencies where symbol ='%s' and"\
-            " date = '{}'".format(date)
+            selstr = "select exchange_rate from currencies where symbol ='%s'"\
+                "and date = '{}'".format(date)
         else:
             selstr = "select exchange_rate from currencies where symbol ='%s'"\
-            " order by date desc"
+                " order by date desc"
 
         c = conn.cursor()
         if from_currency == "USD":
-            from_currency_exch_rate = [1.00,]
+            from_currency_exch_rate = [1.00, ]
         else:
-            from_currency_exch_rate = c.execute(selstr % from_currency).fetchone()
+            from_currency_exch_rate = c.execute(selstr % from_currency).\
+                fetchone()
 
         if to_currenvcy == "USD":
-            to_currenvcy_exch_rate = [1.00,]
+            to_currenvcy_exch_rate = [1.00, ]
         else:
-            to_currenvcy_exch_rate = c.execute(selstr % to_currenvcy).fetchone()
+            to_currenvcy_exch_rate = c.execute(selstr % to_currenvcy).\
+                fetchone()
 
         if from_currency_exch_rate is None or to_currenvcy_exch_rate is None:
             raise cls.ExchangeRateNotFound()

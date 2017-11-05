@@ -26,6 +26,7 @@ def test_convert_from_curr_to_currency():
     )
     assert conversion == 250 * 6.860000 / 22699.301
 
+
 def test_convert_from_currency_to_currency_without_date():
     insstr = "INSERT INTO currencies VALUES (?, ?, ?)"
     new_date_currency = (

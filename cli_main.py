@@ -13,12 +13,14 @@ SUPPORTED_CURRENCIES = (
     "ZAR",
 )
 
+
 def get_conversion_from_db(args):
     argums = [args.fromcurrency, args.tocurrency]
     if args.amount:
         argums.append(args.amount)
 
     return Rate.convert_from_currency_to_currency(*argums)
+
 
 def get_rates_and_save_in_db(client, XMLParser):
     xml = client().get_xml()
@@ -43,7 +45,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.fromcurrency not in SUPPORTED_CURRENCIES or \
-                    args.tocurrency not in SUPPORTED_CURRENCIES:
+            args.tocurrency not in SUPPORTED_CURRENCIES:
         raise IOError("Bad input...")
 
     try:
