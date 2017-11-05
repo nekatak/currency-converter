@@ -26,6 +26,20 @@ def test_convert_from_curr_to_currency():
     )
     assert conversion == 250 * 6.860000 / 22699.301
 
+def test_convert_from_currency_to_currency_without_date():
+    insstr = "INSERT INTO currencies VALUES (?, ?, ?)"
+    new_date_currency = (
+        (6.9435, "BOB", "2017-11-04"),
+    )
+    conn.cursor().executemany(insstr, new_date_currency)
+    conn.commit()
+
+    conversion = Rate.convert_from_currency_to_currency(
+        from_currency="USD", to_currenvcy="BOB"
+    )
+
+    assert conversion == 6.9435
+
 
 def test_convert_from_To_non_existing_currency():
     with pytest.raises(Rate.ExchangeRateNotFound):

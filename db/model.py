@@ -1,4 +1,3 @@
-import datetime
 import sqlite3
 
 conn = sqlite3.connect("currencies.db")
@@ -37,16 +36,17 @@ class Rate(object):
     @classmethod
     def convert_from_currency_to_currency(cls, from_currency,
                                           to_currenvcy, amount=1, date=None):
-        date = date or str(datetime.date.today() - datetime.timedelta(days=1))
-        selstr = "select exchange_rate from currencies where symbol ='%s' and"\
-        " date = '{}'".format(date)
+        if date:
+            selstr = "select exchange_rate from currencies where symbol ='%s' and"\
+            " date = '{}'".format(date)
+        else:
+            selstr = "select exchange_rate from currencies where symbol ='%s'"\
+            " order by date desc"
 
-        from_currency_exch_rate = to_currenvcy_exch_rate = None
-
+        c = conn.cursor()
         if from_currency == "USD":
             from_currency_exch_rate = [1.00,]
         else:
-            c = conn.cursor()
             from_currency_exch_rate = c.execute(selstr % from_currency).fetchone()
 
         if to_currenvcy == "USD":
