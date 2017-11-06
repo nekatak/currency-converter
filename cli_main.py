@@ -6,35 +6,55 @@ from parsers.ecb_parcer import ECBParser
 from parsers.yahoo_parser import YahooParser
 
 
-SUPPORTED_CURRENCIES = (
-    "USD", "JPY", "BGN", "CZK", "DKK", "GBP", "HUF", "PLN", "RON", "SEK",
-    "CHF", "NOK", "HRK", "RUB", "TRY", "AUD", "BRL", "CAD", "CNY", "HKD",
-    "IDR", "ILS", "INR", "KRW", "MXN", "MYR", "NZD", "PHP", "SGD", "THB",
-    "ZAR",
-)
+class Facade(object):
+    SUPPORTED_CURRENCIES = (
+        "USD", "JPY", "BGN", "CZK", "DKK", "GBP", "HUF", "PLN", "RON", "SEK",
+        "CHF", "NOK", "HRK", "RUB", "TRY", "AUD", "BRL", "CAD", "CNY", "HKD",
+        "IDR", "ILS", "INR", "KRW", "MXN", "MYR", "NZD", "PHP", "SGD", "THB",
+        "ZAR",
+    )
 
+    def __init__(self, args):
+        self.args = args
 
-def get_conversion_from_db(args):
-    argums = [args.fromcurrency, args.tocurrency]
-    if args.amount:
-        argums.append(args.amount)
+    def convert_amount(self):
+        try:
+            return self.get_conversion_from_db()
+        except Rate.ExchangeRateNotFound:
+            pass
 
-    return Rate.convert_from_currency_to_currency(*argums)
+        try:
+            self.get_rates_and_save_in_db(YahooClient, YahooParser)
+        except BaseClient.ClientException as e:
+            print(str(e))
+            try:
+                self.get_rates_and_save_in_db(ECBClient, ECBParser)
+            except BaseClient.ClientException as e:
+                print(e)
+                exit(1)
 
+        return self.get_conversion_from_db()
 
-def get_rates_and_save_in_db(client, XMLParser):
-    xml = client().get_xml()
-    xmlparser = XMLParser(xml)
-    rates = xmlparser.get_rates_for_all_available_currencies()
+    def get_conversion_from_db(self):
+        argums = [self.args.fromcurrency, self.args.tocurrency]
+        if self.args.amount:
+            argums.append(self.args.amount)
 
-    for rate in rates:
-        rate.save_to_db_or_update()
+        return Rate.convert_from_currency_to_currency(*argums)
+
+    def get_rates_and_save_in_db(self, client, XMLParser):
+        xml = client().get_xml()
+        xmlparser = XMLParser(xml)
+        rates = xmlparser.get_rates_for_all_available_currencies()
+
+        for rate in rates:
+            rate.save_to_db_or_update()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         "Convert amount from a currency to another. Supported currencies: " +
-        ", ".join(SUPPORTED_CURRENCIES)
+        ", ".join(Facade.SUPPORTED_CURRENCIES)
     )
     parser.add_argument("--fromcurrency", type=str)
     parser.add_argument("--tocurrency", type=str)
@@ -44,25 +64,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.fromcurrency not in SUPPORTED_CURRENCIES or \
-            args.tocurrency not in SUPPORTED_CURRENCIES:
+    if args.fromcurrency not in Facade.SUPPORTED_CURRENCIES or \
+            args.tocurrency not in Facade.SUPPORTED_CURRENCIES:
         raise IOError("Bad input...")
 
-    try:
-        print(get_conversion_from_db(args))
-        exit(0)
-    except Rate.ExchangeRateNotFound:
-        pass
-
-    try:
-        get_rates_and_save_in_db(YahooClient, YahooParser)
-    except BaseClient.ClientException as e:
-        print(str(e))
-        try:
-            get_rates_and_save_in_db(ECBClient, ECBParser)
-        except BaseClient.ClientException as e:
-            print(e)
-            exit(1)
-
-    print(get_conversion_from_db(args))
-    exit(0)
+    print(Facade(args).convert_amount())
